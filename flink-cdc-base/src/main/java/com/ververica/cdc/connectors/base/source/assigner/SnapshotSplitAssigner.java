@@ -269,6 +269,7 @@ public class SnapshotSplitAssigner<C extends SourceConfig> implements SplitAssig
                         remainingTables,
                         isTableIdCaseSensitive,
                         true);
+        LOG.debug("开始保存checkpoint，SnapshotPendingSplitsState：{}", state.toString());
         // we need a complete checkpoint before mark this assigner to be finished, to wait for all
         // records of snapshot splits are completely processed
         if (checkpointIdToFinish == null && !assignerFinished && allSplitsFinished()) {

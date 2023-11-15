@@ -20,6 +20,7 @@ import com.ververica.cdc.connectors.base.config.SourceConfig;
 import com.ververica.cdc.connectors.base.dialect.DataSourceDialect;
 import com.ververica.cdc.connectors.base.source.assigner.state.HybridPendingSplitsState;
 import com.ververica.cdc.connectors.base.source.assigner.state.PendingSplitsState;
+import com.ververica.cdc.connectors.base.source.assigner.state.SnapshotPendingSplitsState;
 import com.ververica.cdc.connectors.base.source.meta.offset.Offset;
 import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
 import com.ververica.cdc.connectors.base.source.meta.split.FinishedSnapshotSplitInfo;
@@ -89,6 +90,8 @@ public class HybridSplitAssigner<C extends SourceConfig> implements SplitAssigne
                 checkpoint.isStreamSplitAssigned(),
                 sourceConfig.getSplitMetaGroupSize(),
                 offsetFactory);
+        SnapshotPendingSplitsState snapshotPendingSplits = checkpoint.getSnapshotPendingSplits();
+        LOG.debug("从checkpoint重启，snapshotPendingSplits:{}", snapshotPendingSplits);
     }
 
     private HybridSplitAssigner(
