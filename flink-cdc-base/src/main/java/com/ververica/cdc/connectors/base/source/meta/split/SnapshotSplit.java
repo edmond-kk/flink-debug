@@ -146,8 +146,6 @@ public class SnapshotSplit extends SourceSplitBase {
                 + Arrays.toString(splitEnd)
                 + ", highWatermark="
                 + highWatermark
-                + ", tableSchemas="
-                + tableSchemas.toString()
                 + '}';
     }
 }
