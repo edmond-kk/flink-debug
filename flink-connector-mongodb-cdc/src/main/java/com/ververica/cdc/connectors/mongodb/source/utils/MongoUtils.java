@@ -160,7 +160,7 @@ public class MongoUtils {
             boolean updateLookup) {
         ChangeStreamIterable<Document> changeStream;
         if (StringUtils.isNotEmpty(database) && StringUtils.isNotEmpty(collection)) {
-            //该字段暂未使用，但某些情况过大，排除掉以节省带宽
+            // 该字段暂未使用，但某些情况过大，排除掉以节省带宽
             Bson exclude = Projections.exclude("updateDescription");
             List<Bson> pipeline = new ArrayList<>();
             Document document = new Document();
