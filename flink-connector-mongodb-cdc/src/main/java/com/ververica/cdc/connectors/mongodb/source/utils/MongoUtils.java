@@ -21,6 +21,7 @@ import com.mongodb.client.MongoChangeStreamCursor;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import com.mongodb.client.model.changestream.FullDocument;
 import com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceConfig;
@@ -159,10 +160,16 @@ public class MongoUtils {
             boolean updateLookup) {
         ChangeStreamIterable<Document> changeStream;
         if (StringUtils.isNotEmpty(database) && StringUtils.isNotEmpty(collection)) {
+            //该字段暂未使用，但某些情况过大，排除掉以节省带宽
+            Bson exclude = Projections.exclude("updateDescription");
+            List<Bson> pipeline = new ArrayList<>();
+            Document document = new Document();
+            document.put("$project", exclude);
+            pipeline.add(document);
             MongoCollection<Document> coll =
                     mongoClient.getDatabase(database).getCollection(collection);
             LOG.info("Preparing change stream for collection {}.{}", database, collection);
-            changeStream = coll.watch();
+            changeStream = coll.watch(pipeline);
         } else if (StringUtils.isNotEmpty(database) && namespaceRegex != null) {
             MongoDatabase db = mongoClient.getDatabase(database);
             List<Bson> pipeline = new ArrayList<>();
