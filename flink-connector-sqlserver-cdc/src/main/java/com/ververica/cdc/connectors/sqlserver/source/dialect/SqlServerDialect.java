@@ -28,10 +28,12 @@ import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitBase;
 import com.ververica.cdc.connectors.base.source.reader.external.FetchTask;
 import com.ververica.cdc.connectors.sqlserver.source.config.SqlServerSourceConfig;
 import com.ververica.cdc.connectors.sqlserver.source.config.SqlServerSourceConfigFactory;
+import com.ververica.cdc.connectors.sqlserver.source.offset.LsnOffset;
 import com.ververica.cdc.connectors.sqlserver.source.reader.fetch.SqlServerScanFetchTask;
 import com.ververica.cdc.connectors.sqlserver.source.reader.fetch.SqlServerSourceFetchTaskContext;
 import com.ververica.cdc.connectors.sqlserver.source.reader.fetch.SqlServerStreamFetchTask;
 import com.ververica.cdc.connectors.sqlserver.source.utils.SqlServerConnectionUtils;
+import io.debezium.connector.sqlserver.Lsn;
 import io.debezium.connector.sqlserver.SqlServerConnection;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.TableId;
@@ -44,6 +46,7 @@ import java.util.Map;
 
 import static com.ververica.cdc.connectors.sqlserver.source.utils.SqlServerConnectionUtils.createSqlServerConnection;
 import static com.ververica.cdc.connectors.sqlserver.source.utils.SqlServerUtils.currentLsn;
+import static com.ververica.cdc.connectors.sqlserver.source.utils.SqlServerUtils.getLsnFromTimestamp;
 
 /** The {@link JdbcDataSourceDialect} implementation for SqlServer datasource. */
 @Experimental
@@ -66,6 +69,18 @@ public class SqlServerDialect implements JdbcDataSourceDialect {
     public Offset displayCurrentOffset(JdbcSourceConfig sourceConfig) {
         try (JdbcConnection jdbcConnection = openJdbcConnection(sourceConfig)) {
             return currentLsn((SqlServerConnection) jdbcConnection);
+        } catch (Exception e) {
+            throw new FlinkRuntimeException("Read the redoLog offset error", e);
+        }
+    }
+
+    @Override
+    public Offset displayLsnFromTimestamp(JdbcSourceConfig sourceConfig, long timestamp) {
+        try (JdbcConnection jdbcConnection = openJdbcConnection(sourceConfig)) {
+            byte[] lsnFromTimestamp =
+                    getLsnFromTimestamp((SqlServerConnection) jdbcConnection, timestamp);
+            Lsn lsn = Lsn.valueOf(lsnFromTimestamp);
+            return new LsnOffset(lsn, lsn, null);
         } catch (Exception e) {
             throw new FlinkRuntimeException("Read the redoLog offset error", e);
         }

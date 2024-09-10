@@ -141,7 +141,8 @@ public class StreamSplitAssigner implements SplitAssigner {
                 break;
             case TIMESTAMP:
                 startingOffset =
-                        offsetFactory.createTimestampOffset(startupOptions.startupTimestampMillis);
+                        dialect.displayLsnFromTimestamp(
+                                sourceConfig, startupOptions.startupTimestampMillis);
                 break;
             case SPECIFIC_OFFSETS:
                 startingOffset =

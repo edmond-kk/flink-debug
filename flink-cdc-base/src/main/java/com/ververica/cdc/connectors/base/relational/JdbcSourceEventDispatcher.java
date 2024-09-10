@@ -214,7 +214,7 @@ public class JdbcSourceEventDispatcher<P extends Partition> extends EventDispatc
 
         @Override
         public void schemaChangeEvent(SchemaChangeEvent event) throws InterruptedException {
-/*            historizedSchema.applySchemaChange(event);
+            /*            historizedSchema.applySchemaChange(event);
             if (connectorConfig.isSchemaChangesHistoryEnabled()) {
                 try {
                     final String topicName = topicSelector.getPrimaryTopic();

@@ -59,6 +59,10 @@ public interface DataSourceDialect<C extends SourceConfig>
      */
     Offset displayCurrentOffset(C sourceConfig);
 
+    default Offset displayLsnFromTimestamp(C sourceConfig, long timeStamp) {
+        throw new UnsupportedOperationException();
+    }
+
     /** Check if the CollectionId is case-sensitive or not. */
     boolean isDataCollectionIdCaseSensitive(C sourceConfig);
 

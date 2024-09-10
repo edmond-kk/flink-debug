@@ -67,6 +67,7 @@ public class SqlServerSourceConfigFactory extends JdbcSourceConfigFactory {
                 props.setProperty("snapshot.mode", "initial");
                 break;
             case LATEST_OFFSET:
+            case TIMESTAMP:
                 props.setProperty("snapshot.mode", "schema_only");
                 break;
             default:

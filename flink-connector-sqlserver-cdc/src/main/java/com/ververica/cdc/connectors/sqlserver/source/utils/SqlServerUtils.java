@@ -39,7 +39,9 @@ import org.apache.kafka.connect.source.SourceRecord;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -205,6 +207,29 @@ public class SqlServerUtils {
         } catch (SQLException e) {
             throw new FlinkRuntimeException(e.getMessage(), e);
         }
+    }
+
+    public static byte[] getLsnFromTimestamp(
+            SqlServerConnection sqlServerConnection, Long timestamp) throws SQLException {
+        // SQL 查询，调用 sys.fn_cdc_map_time_to_lsn 函数
+        String query = "SELECT sys.fn_cdc_map_time_to_lsn('largest less than', ?) AS lsn";
+
+        try (Connection connection = sqlServerConnection.connection();
+                PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            // 设置时间戳参数
+            preparedStatement.setTimestamp(1, new Timestamp(timestamp));
+
+            // 执行查询
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // 获取返回的LSN
+                    return resultSet.getBytes("lsn");
+                }
+            }
+        }
+        // 如果没有找到对应的 LSN，返回 null
+        return null;
     }
 
     /** Get split scan query for the given table. */
